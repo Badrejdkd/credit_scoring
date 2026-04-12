@@ -44,38 +44,6 @@ Outils         →  VSCode · Git · Jupyter Notebook
 
 ---
 
-## 📁 Structure du projet
-creditai/
-├── config/                  # Configuration Django (settings, urls, wsgi)
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-├── credit_scoring/          # Application principale
-│   ├── models.py            # DossierCredit, ScoreRisque, SHAP, PDF, LogAgent
-│   ├── views.py             # Login, Register, Dashboard, Dossier, Chatbot
-│   ├── urls.py              # Routes de l'application
-│   ├── admin.py             # Interface d'administration
-│   ├── ml_service.py        # Intégration XGBoost + SHAP
-│   └── pdf_service.py       # Génération rapports ReportLab
-├── ml_models/               # Modèles ML sérialisés (.pkl)
-│   ├── xgboost_model.pkl
-│   └── shap_explainer.pkl
-├── templates/               # Pages HTML
-│   ├── home.html
-│   ├── login.html
-│   ├── register.html
-│   ├── dashboard.html
-│   ├── dossier_form.html
-│   ├── detail_dossier.html
-│   ├── historique.html
-│   └── chatbot.html
-├── static/                  # CSS, JS, images
-├── media/                   # Rapports PDF générés
-├── requirements.txt
-└── manage.py
-
----
-
 ## ⚙️ Installation
 
 ### 1. Cloner le projet
