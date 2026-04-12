@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}SHAP — {{ dossier.client_nom }} — CreditAI{% endblock %}
+{% block nav_shap %}active{% endblock %}
+
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
+    <div style="display:flex;align-items:center;gap:16px;">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#1c1c1e;">
+            {{ dossier.client_nom|first|upper }}{{ dossier.client_prenom|first|upper }}
+        </div>
+        <div>
+            <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--text-primary);">SHAP & Explication</h1>
+            <p style="font-size:0.85rem;color:var(--text-muted);">{{ dossier.client_nom }} {{ dossier.client_prenom }} · Dossier #{{ dossier.pk }}</p>
+        </div>
+    </div>
+    <a href="{% url 'detail_dossier' dossier.pk %}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;font-size:13px;">← Retour</a>
+</div>
+
+{% if score %}
+<!-- SCORE RÉSUMÉ -->
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:1.8rem;">
+    <div style="background:var(--accent-gradient);border-radius:14px;padding:20px;box-shadow:0 6px 20px rgba(184,115,51,0.3);">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(28,28,30,0.65);margin-bottom:8px;">Score</div>
+        <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:#1c1c1e;">{{ score.score|floatformat:1 }}</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Prob. Défaut</div>
+        <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:{% if score.proba_defaut < 0.2 %}var(--gain){% elif score.proba_defaut < 0.5 %}var(--accent-copper){% else %}var(--loss){% endif %};">{{ score.proba_defaut|floatformat:3 }}</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Risque</div>
+        <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:{% if score.get_niveau_risque == 'Faible' %}var(--gain){% elif score.get_niveau_risque == 'Élevé' %}var(--loss){% else %}var(--accent-copper){% endif %};">{{ score.get_niveau_risque }}</div>
+    </div>
+</div>
+
+{% if shap_data %}
+<!-- EXPLICATION SHAP -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+    <!-- BARRES SHAP -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:24px;">
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">Impact des variables</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">
+            <span style="display:inline-flex;align-items:center;gap:6px;margin-right:16px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--loss);display:inline-block;"></span>Augmente le risque</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--gain);display:inline-block;"></span>Réduit le risque</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+            {% for item in shap_data %}
+            <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <span style="font-size:13px;color:var(--text-primary);font-weight:500;">{{ item.variable }}</span>
+                    <span style="font-size:12px;font-weight:700;color:{% if item.positif %}var(--loss){% else %}var(--gain){% endif %};">
+                        {% if item.positif %}+{% endif %}{{ item.valeur_shap|floatformat:3 }}
+                    </span>
+                </div>
+                <div style="height:8px;border-radius:4px;background:var(--bg-primary);overflow:hidden;">
+                    <div style="height:100%;border-radius:4px;width:{{ item.pct }}%;background:{% if item.positif %}var(--loss){% else %}var(--gain){% endif %};transition:width 0.5s ease;"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- INTERPRÉTATION -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:24px;">
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:20px;">Interprétation</div>
+
+        <div style="background:var(--bg-primary);border-radius:10px;padding:16px;margin-bottom:14px;">
+            <div style="font-size:12px;font-weight:700;color:var(--accent-copper);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">🔺 Facteurs de risque</div>
+            {% for item in shap_data %}
+            {% if item.positif %}
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(58,58,60,0.3);">
+                <div style="width:6px;height:6px;border-radius:50%;background:var(--loss);flex-shrink:0;"></div>
+                <span style="font-size:13px;color:var(--text-secondary);">{{ item.variable }}</span>
+                <span style="margin-left:auto;font-size:12px;font-weight:600;color:var(--loss);">+{{ item.valeur_shap|floatformat:3 }}</span>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <div style="background:var(--bg-primary);border-radius:10px;padding:16px;">
+            <div style="font-size:12px;font-weight:700;color:var(--gain);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">🔻 Facteurs protecteurs</div>
+            {% for item in shap_data %}
+            {% if not item.positif %}
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(58,58,60,0.3);">
+                <div style="width:6px;height:6px;border-radius:50%;background:var(--gain);flex-shrink:0;"></div>
+                <span style="font-size:13px;color:var(--text-secondary);">{{ item.variable }}</span>
+                <span style="margin-left:auto;font-size:12px;font-weight:600;color:var(--gain);">{{ item.valeur_shap|floatformat:3 }}</span>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+{% else %}
+<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:3rem;text-align:center;color:var(--text-muted);">
+    Aucune explication SHAP disponible pour ce dossier.
+</div>
+{% endif %}
+
+{% else %}
+<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:3rem;text-align:center;color:var(--text-muted);">
+    Ce dossier n'a pas encore été scoré.
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rapports PDF — CreditAI{% endblock %}
+{% block nav_rapport %}active{% endblock %}
+
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
+    <div>
+        <h1 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--text-primary);">Rapports PDF</h1>
+        <p style="font-size:0.88rem;color:var(--text-muted);margin-top:4px;">
+            Générez et téléchargez les rapports PDF de vos dossiers
+        </p>
+    </div>
+</div>
+
+{% if dossiers %}
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+    {% for dossier in dossiers %}
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;">
+
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <div style="width:40px;height:40px;border-radius:10px;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#1c1c1e;flex-shrink:0;">
+                {{ dossier.client_nom|first|upper }}{{ dossier.client_prenom|first|upper }}
+            </div>
+            <div>
+                <div style="font-size:14px;font-weight:600;color:var(--text-primary);">{{ dossier.client_nom }} {{ dossier.client_prenom }}</div>
+                <div style="font-size:12px;color:var(--text-muted);">{{ dossier.created_at|date:"d/m/Y" }}</div>
+            </div>
+        </div>
+
+        {% if dossier.score %}
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div>
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Score</div>
+                <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--accent-copper);">
+                    {{ dossier.score.score|floatformat:1 }}
+                </div>
+            </div>
+            <span style="padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600;
+                {% if dossier.score.get_niveau_risque == 'Faible' %}background:rgba(107,142,107,0.15);color:var(--gain);border:1px solid rgba(107,142,107,0.3);
+                {% elif dossier.score.get_niveau_risque == 'Élevé' %}background:rgba(194,120,120,0.15);color:var(--loss);border:1px solid rgba(194,120,120,0.3);
+                {% else %}background:rgba(184,115,51,0.15);color:var(--accent-copper);border:1px solid rgba(184,115,51,0.3);{% endif %}">
+                {{ dossier.score.get_niveau_risque }}
+            </span>
+        </div>
+        {% else %}
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Non scoré</div>
+        {% endif %}
+
+        <!-- Statut rapport -->
+        <div style="padding:10px;border-radius:8px;margin-bottom:14px;
+            {% if dossier.rapport %}background:rgba(107,142,107,0.1);border:1px solid rgba(107,142,107,0.3);
+            {% else %}background:rgba(184,115,51,0.1);border:1px solid rgba(184,115,51,0.3);{% endif %}">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <div style="width:6px;height:6px;border-radius:50%;
+                    {% if dossier.rapport %}background:var(--gain);box-shadow:0 0 6px var(--gain);
+                    {% else %}background:var(--accent-copper);{% endif %}flex-shrink:0;"></div>
+                <span style="font-size:12px;font-weight:600;
+                    {% if dossier.rapport %}color:var(--gain);{% else %}color:var(--accent-copper);{% endif %}">
+                    {% if dossier.rapport %}
+                        Rapport disponible — {{ dossier.rapport.created_at|date:"d/m/Y" }}
+                    {% else %}
+                        Aucun rapport généré
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;gap:8px;">
+            <a href="{% url 'rapport_pdf' dossier.pk %}" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:8px;background:var(--accent-gradient);color:#1c1c1e;text-decoration:none;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;">
+                {% if dossier.rapport %}🔄 Regénérer{% else %}⚡ Générer{% endif %}
+            </a>
+            {% if dossier.rapport %}
+            <a href="{% url 'telecharger_pdf' dossier.pk %}" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:8px;background:var(--bg-primary);border:1px solid var(--border);color:var(--text-primary);text-decoration:none;font-size:12px;font-weight:500;">
+                ⬇ PDF
+            </a>
+            {% endif %}
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:4rem;text-align:center;">
+    <div style="font-size:2rem;margin-bottom:1rem;">📄</div>
+    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Aucun dossier disponible</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:1.5rem;">Créez un dossier pour générer des rapports PDF.</div>
+    <a href="{% url 'nouveau_dossier' %}" style="display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:10px;background:var(--accent-gradient);color:#1c1c1e;text-decoration:none;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;">
+        + Nouveau dossier
+    </a>
+</div>
+{% endif %}
+
+{% endblock %}

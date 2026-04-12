@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Nouveau Dossier — CreditAI{% endblock %}
+{% block nav_dossier %}active{% endblock %}
+
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
+    <div>
+        <h1 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--text-primary);">Nouveau Dossier</h1>
+        <p style="font-size:0.88rem;color:var(--text-muted);margin-top:4px;">Remplissez les informations du client pour générer un score de crédit</p>
+    </div>
+    <a href="{% url 'dashboard' %}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;font-size:13px;">
+        ← Retour
+    </a>
+</div>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <!-- INFOS CLIENT -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;font-size:14px;">👤</div>
+            <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text-primary);">Informations Client</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Nom</label>
+                <input type="text" name="client_nom" required placeholder="El Mouden"
+                    style="width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+                    onfocus="this.style.borderColor='var(--accent-copper)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Prénom</label>
+                <input type="text" name="client_prenom" required placeholder="Badre"
+                    style="width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+                    onfocus="this.style.borderColor='var(--accent-copper)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+        </div>
+    </div>
+
+    <!-- DONNÉES FINANCIÈRES -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:rgba(107,142,107,0.2);display:flex;align-items:center;justify-content:center;font-size:14px;">💰</div>
+            <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text-primary);">Données Financières</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+
+            {% for field_name, field_label, field_placeholder, field_step, field_min, field_max in fields_financiers %}
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">{{ field_label }}</label>
+                <input type="number" name="{{ field_name }}" step="{{ field_step }}" min="{{ field_min }}" {% if field_max %}max="{{ field_max }}"{% endif %} required placeholder="{{ field_placeholder }}"
+                    style="width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+                    onfocus="this.style.borderColor='var(--accent-copper)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+            {% empty %}
+
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Revolving Utilization</label>
+                <input type="number" name="revolving_utilization" step="0.01" min="0" max="1" required placeholder="0.50"
+                    style="width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+                    onfocus="this.style.borderColor='var(--accent-copper)'" onblur="this.style.borderColor='var(--border)'">
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Entre 0 et 1</div>
+            </div>
+
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Âge</label>
+                <input type="number" name="age" min="18" max="100" required placeholder="35"
+                    style="width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+                    onfocus="this.style.borderColor='var(--accent-copper)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Revenu Mensuel (MAD)</label>
+                <input type="number" name="monthly_income" min="0" required placeholder="8000"
+                    style="width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+                    onfocus="this.style.borderColor='var(--accent-copper)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Debt Ratio</label>
+                <input type="number" name="debt_ratio" step="0.01" min="0" required placeholder="0.35"
+                    style="width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+                    onfocus="this.style.borderColor='var(--accent-copper)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Lignes de crédit ouvertes</label>
+                <input type="number" name="nb_open_credit_lines" min="0" required placeholder="5"
+                    style="width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+                    onfocus="this.style.borderColor='var(--accent-copper)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Prêts immobiliers</label>
+                <input type="number" name="nb_real_estate_loans" min="0" required placeholder="1"
+                    style="width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+                    onfocus="this.style.borderColor='var(--accent-copper)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Personnes à charge</label>
+                <input type="number" name="nb_dependents" min="0" required placeholder="2"
+                    style="width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+                    onfocus="this.style.borderColor='var(--accent-copper)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- RETARDS -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:rgba(194,120,120,0.2);display:flex;align-items:center;justify-content:center;font-size:14px;">⚠️</div>
+            <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text-primary);">Retards de Paiement</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Retards 30-59 jours</label>
+                <input type="number" name="nb_30_59_days_late" min="0" required placeholder="0"
+                    style="width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+                    onfocus="this.style.borderColor='var(--accent-copper)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Retards 60-89 jours</label>
+                <input type="number" name="nb_60_89_days_late" min="0" required placeholder="0"
+                    style="width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+                    onfocus="this.style.borderColor='var(--accent-copper)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Retards 90+ jours</label>
+                <input type="number" name="nb_90_days_late" min="0" required placeholder="0"
+                    style="width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+                    onfocus="this.style.borderColor='var(--accent-copper)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+        </div>
+    </div>
+
+    <!-- BOUTONS -->
+    <div style="display:flex;gap:12px;justify-content:flex-end;">
+        <a href="{% url 'dashboard' %}" style="display:inline-flex;align-items:center;padding:13px 24px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;font-size:14px;font-weight:500;">
+            Annuler
+        </a>
+        <button type="submit" style="display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:10px;background:var(--accent-gradient);color:#1c1c1e;border:none;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(184,115,51,0.3);">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Créer & Scorer
+        </button>
+    </div>
+
+</form>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirmer suppression — CreditAI{% endblock %}
+
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2.5rem;max-width:440px;width:100%;text-align:center;">
+        <div style="width:60px;height:60px;border-radius:50%;background:rgba(194,120,120,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:1.8rem;">⚠️</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:0.75rem;">
+            Confirmer la suppression
+        </div>
+        <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:2rem;line-height:1.6;">
+            Êtes-vous sûr de vouloir supprimer le dossier de<br>
+            <strong style="color:var(--text-primary);">{{ dossier.client_nom }} {{ dossier.client_prenom }}</strong> ?<br>
+            Cette action est irréversible.
+        </p>
+        <div style="display:flex;gap:12px;justify-content:center;">
+            <a href="{% url 'historique' %}" style="padding:12px 24px;border-radius:10px;background:var(--bg-primary);border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;font-size:14px;font-weight:500;">
+                Annuler
+            </a>
+            <form method="POST" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" style="padding:12px 24px;border-radius:10px;background:var(--loss);color:#fff;border:none;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">
+                    Supprimer définitivement
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

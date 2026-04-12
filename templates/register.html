@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription — CreditAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body class="auth-page">
+
+    <div class="auth-branding">
+        <div class="branding-content">
+            <div class="branding-logo">CV</div>
+            <div class="branding-title">CreditAI</div>
+            <div class="branding-subtitle">Rejoignez la plateforme de scoring intelligente</div>
+            <div class="branding-features">
+                <div class="branding-feature">
+                    <div class="feature-icon">🔒</div>
+                    Sécurité bancaire avec authentification 2FA
+                </div>
+                <div class="branding-feature">
+                    <div class="feature-icon">📊</div>
+                    Scoring en temps réel avec XGBoost
+                </div>
+                <div class="branding-feature">
+                    <div class="feature-icon">🤖</div>
+                    Assistant LLM pour l'analyse des dossiers
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-form-container">
+        <div class="auth-form-wrapper">
+            <div class="form-header">
+                <h1>Créer un compte</h1>
+                <p>Rejoignez la plateforme CreditAI</p>
+            </div>
+
+            <div class="auth-tabs">
+                <a href="{% url 'login' %}" class="auth-tab">Sign In</a>
+                <button class="auth-tab active">Sign Up</button>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Prénom</label>
+                        <div class="form-input-wrapper">
+                            <input class="form-input" type="text" name="prenom" placeholder="Badre" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nom</label>
+                        <div class="form-input-wrapper">
+                            <input class="form-input" type="text" name="nom" placeholder="El Mouden" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nom d'utilisateur</label>
+                    <div class="form-input-wrapper">
+                        <input class="form-input" type="text" name="username" placeholder="badre_elmouden" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <div class="form-input-wrapper">
+                        <svg class="input-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
+                        </svg>
+                        <input class="form-input" type="email" name="email" placeholder="badre@emsi.ma" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Agence</label>
+                    <div class="form-input-wrapper">
+                        <input class="form-input" type="text" name="agence" placeholder="Casablanca Centre" required>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Mot de passe</label>
+                        <div class="form-input-wrapper">
+                            <svg class="input-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                            </svg>
+                            <input class="form-input" type="password" name="password1" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirmer</label>
+                        <div class="form-input-wrapper">
+                            <svg class="input-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                            </svg>
+                            <input class="form-input" type="password" name="password2" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Créer mon compte →</button>
+            </form>
+
+            <div class="form-footer" style="margin-top:1.5rem;">
+                Déjà un compte ? <a href="{% url 'login' %}">Se connecter</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

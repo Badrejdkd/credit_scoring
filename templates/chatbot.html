@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chatbot — {{ dossier.client_nom }} — CreditAI{% endblock %}
+{% block nav_chatbot %}active{% endblock %}
+
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
+    <div style="display:flex;align-items:center;gap:16px;">
+        <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#6366f1);display:flex;align-items:center;justify-content:center;font-size:1.4rem;">💬</div>
+        <div>
+            <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--text-primary);">Chatbot LLM</h1>
+            <p style="font-size:0.85rem;color:var(--text-muted);">{{ dossier.client_nom }} {{ dossier.client_prenom }} · Dossier #{{ dossier.pk }}</p>
+        </div>
+    </div>
+    <a href="{% url 'detail_dossier' dossier.pk %}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;font-size:13px;">← Retour</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 320px;gap:14px;">
+
+    <!-- CHAT PRINCIPAL -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;height:70vh;">
+
+        <!-- Messages -->
+        <div id="chat-messages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;">
+
+            <!-- Message de bienvenue -->
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+                <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#6366f1);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🤖</div>
+                <div style="background:var(--bg-primary);border-radius:12px;border-top-left-radius:2px;padding:14px;max-width:80%;">
+                    <div style="font-size:13px;color:var(--text-primary);line-height:1.6;">
+                        Bonjour ! Je suis votre assistant IA. Je peux vous aider à analyser le dossier de
+                        <strong>{{ dossier.client_nom }} {{ dossier.client_prenom }}</strong>.
+                        {% if score %}
+                        Le score de crédit est de <strong style="color:var(--accent-copper);">{{ score.score|floatformat:1 }}</strong>
+                        avec un risque <strong>{{ score.get_niveau_risque }}</strong>.
+                        {% endif %}
+                        Posez-moi vos questions !
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historique des échanges -->
+            {% for log in logs %}
+
+            <!-- Question utilisateur -->
+            <div style="display:flex;gap:12px;align-items:flex-start;flex-direction:row-reverse;">
+                <div style="width:34px;height:34px;border-radius:8px;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:#1c1c1e;flex-shrink:0;">
+                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                </div>
+                <div style="background:var(--accent-gradient);border-radius:12px;border-top-right-radius:2px;padding:14px;max-width:80%;">
+                    <div style="font-size:13px;color:#1c1c1e;line-height:1.6;">{{ log.question }}</div>
+                </div>
+            </div>
+
+            <!-- Réponse LLM -->
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+                <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#6366f1);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🤖</div>
+                <div style="background:var(--bg-primary);border-radius:12px;border-top-left-radius:2px;padding:14px;max-width:80%;">
+                    <div style="font-size:13px;color:var(--text-primary);line-height:1.6;">{{ log.reponse }}</div>
+                    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">{{ log.created_at|date:"H:i" }}</div>
+                </div>
+            </div>
+
+            {% endfor %}
+        </div>
+
+        <!-- Input -->
+        <div style="padding:16px;border-top:1px solid var(--border);">
+            <form method="POST" style="display:flex;gap:10px;">
+                {% csrf_token %}
+                <input type="text" name="question" id="question-input" required
+                    placeholder="Posez votre question sur ce dossier..."
+                    style="flex:1;background:var(--bg-primary);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+                    onfocus="this.style.borderColor='var(--accent-copper)'" onblur="this.style.borderColor='var(--border)'">
+                <button type="submit" style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:10px;background:var(--accent-gradient);color:#1c1c1e;border:none;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/>
+                    </svg>
+                    Envoyer
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SIDEBAR DOSSIER -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+
+        <!-- Info score -->
+        {% if score %}
+        <div style="background:var(--accent-gradient);border-radius:14px;padding:20px;box-shadow:0 4px 16px rgba(184,115,51,0.25);">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(28,28,30,0.65);margin-bottom:8px;">Score de crédit</div>
+            <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:#1c1c1e;">{{ score.score|floatformat:1 }}</div>
+            <div style="font-size:12px;color:rgba(28,28,30,0.6);margin-top:4px;">Risque : {{ score.get_niveau_risque }}</div>
+        </div>
+        {% endif %}
+
+        <!-- Questions suggérées -->
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;">
+            <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:14px;">Questions suggérées</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                {% for question in suggestions %}
+                <button onclick="document.getElementById('question-input').value='{{ question }}'" style="text-align:left;padding:10px 14px;border-radius:8px;background:var(--bg-primary);border:1px solid var(--border);color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all 0.2s;line-height:1.4;"
+                    onmouseover="this.style.borderColor='var(--accent-copper)';this.style.color='var(--text-primary)'"
+                    onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'">
+                    {{ question }}
+                </button>
+                {% empty %}
+                <button onclick="document.getElementById('question-input').value='Quel est le principal facteur de risque de ce client ?'" style="text-align:left;padding:10px 14px;border-radius:8px;background:var(--bg-primary);border:1px solid var(--border);color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;line-height:1.4;">
+                    Quel est le principal facteur de risque ?
+                </button>
+                <button onclick="document.getElementById('question-input').value='Recommandez-vous d\'accorder ce crédit ?'" style="text-align:left;padding:10px 14px;border-radius:8px;background:var(--bg-primary);border:1px solid var(--border);color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;line-height:1.4;">
+                    Recommandez-vous d'accorder ce crédit ?
+                </button>
+                <button onclick="document.getElementById('question-input').value='Comment améliorer le score de ce client ?'" style="text-align:left;padding:10px 14px;border-radius:8px;background:var(--bg-primary);border:1px solid var(--border);color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;line-height:1.4;">
+                    Comment améliorer le score ?
+                </button>
+                <button onclick="document.getElementById('question-input').value='Expliquez la probabilité de défaut de ce client.'" style="text-align:left;padding:10px 14px;border-radius:8px;background:var(--bg-primary);border:1px solid var(--border);color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;line-height:1.4;">
+                    Expliquez la probabilité de défaut.
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Infos client -->
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;">
+            <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:14px;">Résumé client</div>
+            <div style="display:flex;flex-direction:column;gap:0;">
+                {% for label, value in resume_data %}
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(58,58,60,0.3);">
+                    <span style="font-size:12px;color:var(--text-muted);">{{ label }}</span>
+                    <span style="font-size:12px;font-weight:600;color:var(--text-primary);">{{ value }}</span>
+                </div>
+                {% empty %}
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(58,58,60,0.3);">
+                    <span style="font-size:12px;color:var(--text-muted);">Âge</span>
+                    <span style="font-size:12px;font-weight:600;color:var(--text-primary);">{{ dossier.age }} ans</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(58,58,60,0.3);">
+                    <span style="font-size:12px;color:var(--text-muted);">Revenu</span>
+                    <span style="font-size:12px;font-weight:600;color:var(--text-primary);">{{ dossier.monthly_income|floatformat:0 }} MAD</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(58,58,60,0.3);">
+                    <span style="font-size:12px;color:var(--text-muted);">Debt Ratio</span>
+                    <span style="font-size:12px;font-weight:600;color:var(--text-primary);">{{ dossier.debt_ratio|floatformat:2 }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:8px 0;">
+                    <span style="font-size:12px;color:var(--text-muted);">Retards total</span>
+                    <span style="font-size:12px;font-weight:600;color:var(--text-primary);">{{ dossier.nb_30_59_days_late|add:dossier.nb_60_89_days_late|add:dossier.nb_90_days_late }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-scroll vers le bas
+const chatMessages = document.getElementById('chat-messages');
+if (chatMessages) {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+</script>
+{% endblock %}

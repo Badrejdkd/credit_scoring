@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rapport PDF — {{ dossier.client_nom }} — CreditAI{% endblock %}
+{% block nav_rapport %}active{% endblock %}
+
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
+    <div style="display:flex;align-items:center;gap:16px;">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(194,120,120,0.2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;">📄</div>
+        <div>
+            <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--text-primary);">Rapport PDF</h1>
+            <p style="font-size:0.85rem;color:var(--text-muted);">{{ dossier.client_nom }} {{ dossier.client_prenom }} · Dossier #{{ dossier.pk }}</p>
+        </div>
+    </div>
+    <a href="{% url 'detail_dossier' dossier.pk %}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;font-size:13px;">← Retour</a>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;">
+
+    <!-- APERÇU RAPPORT -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:24px;">
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:20px;">Contenu du rapport</div>
+
+        <!-- Preview -->
+        <div style="background:var(--bg-primary);border-radius:12px;padding:24px;margin-bottom:20px;border:1px solid var(--border);">
+
+            <div style="text-align:center;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);">
+                <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--accent-copper);margin-bottom:4px;">CreditAI — Rapport de Scoring</div>
+                <div style="font-size:13px;color:var(--text-muted);">EMSI Casablanca · {{ dossier.created_at|date:"d/m/Y" }}</div>
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Informations Client</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div style="background:var(--bg-card);border-radius:8px;padding:10px;">
+                        <div style="font-size:11px;color:var(--text-muted);">Nom complet</div>
+                        <div style="font-size:13px;font-weight:600;color:var(--text-primary);">{{ dossier.client_nom }} {{ dossier.client_prenom }}</div>
+                    </div>
+                    <div style="background:var(--bg-card);border-radius:8px;padding:10px;">
+                        <div style="font-size:11px;color:var(--text-muted);">Âge</div>
+                        <div style="font-size:13px;font-weight:600;color:var(--text-primary);">{{ dossier.age }} ans</div>
+                    </div>
+                    <div style="background:var(--bg-card);border-radius:8px;padding:10px;">
+                        <div style="font-size:11px;color:var(--text-muted);">Revenu mensuel</div>
+                        <div style="font-size:13px;font-weight:600;color:var(--text-primary);">{{ dossier.monthly_income|floatformat:0 }} MAD</div>
+                    </div>
+                    <div style="background:var(--bg-card);border-radius:8px;padding:10px;">
+                        <div style="font-size:11px;color:var(--text-muted);">Debt Ratio</div>
+                        <div style="font-size:13px;font-weight:600;color:var(--text-primary);">{{ dossier.debt_ratio|floatformat:2 }}</div>
+                    </div>
+                </div>
+            </div>
+
+            {% if score %}
+            <div style="margin-bottom:20px;">
+                <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Résultat du Scoring</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+                    <div style="background:var(--accent-gradient);border-radius:8px;padding:14px;text-align:center;">
+                        <div style="font-size:11px;color:rgba(28,28,30,0.6);">Score</div>
+                        <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:#1c1c1e;">{{ score.score|floatformat:1 }}</div>
+                    </div>
+                    <div style="background:var(--bg-card);border-radius:8px;padding:14px;text-align:center;border:1px solid var(--border);">
+                        <div style="font-size:11px;color:var(--text-muted);">Prob. Défaut</div>
+                        <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--text-primary);">{{ score.proba_defaut|floatformat:2 }}</div>
+                    </div>
+                    <div style="background:var(--bg-card);border-radius:8px;padding:14px;text-align:center;border:1px solid var(--border);">
+                        <div style="font-size:11px;color:var(--text-muted);">Risque</div>
+                        <div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;
+                            color:{% if score.get_niveau_risque == 'Faible' %}var(--gain){% elif score.get_niveau_risque == 'Élevé' %}var(--loss){% else %}var(--accent-copper){% endif %};">
+                            {{ score.get_niveau_risque }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Recommandation</div>
+                <div style="background:var(--bg-card);border-radius:8px;padding:16px;border-left:3px solid {% if score.get_niveau_risque == 'Faible' %}var(--gain){% elif score.get_niveau_risque == 'Élevé' %}var(--loss){% else %}var(--accent-copper){% endif %};">
+                    <div style="font-size:13px;color:var(--text-primary);line-height:1.6;">
+                        {% if score.get_niveau_risque == 'Faible' %}
+                        ✅ <strong>Crédit recommandé.</strong> Le profil de ce client présente un faible risque de défaut. Les indicateurs financiers sont satisfaisants.
+                        {% elif score.get_niveau_risque == 'Élevé' %}
+                        ❌ <strong>Crédit déconseillé.</strong> Le profil de ce client présente un risque élevé de défaut. Des garanties supplémentaires sont recommandées.
+                        {% else %}
+                        ⚠️ <strong>Examen approfondi recommandé.</strong> Le profil de ce client présente un risque modéré. Une analyse complémentaire est conseillée.
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;gap:12px;">
+            <form method="POST" style="flex:1;">
+                {% csrf_token %}
+                <button type="submit" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 20px;border-radius:10px;background:var(--accent-gradient);color:#1c1c1e;border:none;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(184,115,51,0.3);">
+                    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+                    </svg>
+                    {% if rapport %}Regénérer le PDF{% else %}Générer le PDF{% endif %}
+                </button>
+            </form>
+            {% if rapport %}
+            <a href="{% url 'telecharger_pdf' dossier.pk %}" style="display:inline-flex;align-items:center;gap:8px;padding:13px 20px;border-radius:10px;background:var(--bg-primary);border:1px solid var(--border);color:var(--text-primary);text-decoration:none;font-size:14px;font-weight:500;white-space:nowrap;">
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+                </svg>
+                Télécharger
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+
+        <!-- Statut rapport -->
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;">
+            <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:16px;">Statut du rapport</div>
+            {% if rapport %}
+            <div style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(107,142,107,0.1);border:1px solid rgba(107,142,107,0.3);border-radius:10px;margin-bottom:12px;">
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--gain);box-shadow:0 0 6px var(--gain);"></div>
+                <span style="font-size:13px;color:var(--gain);font-weight:600;">Rapport disponible</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);">Généré le {{ rapport.created_at|date:"d/m/Y à H:i" }}</div>
+            {% else %}
+            <div style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(184,115,51,0.1);border:1px solid rgba(184,115,51,0.3);border-radius:10px;">
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--accent-copper);"></div>
+                <span style="font-size:13px;color:var(--accent-copper);font-weight:600;">Aucun rapport généré</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Liens rapides -->
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;">
+            <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:14px;">Liens rapides</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <a href="{% url 'detail_dossier' dossier.pk %}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:var(--bg-primary);color:var(--text-secondary);text-decoration:none;font-size:13px;transition:all 0.2s;"
+                    onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-secondary)'">
+                    📋 Voir le dossier complet
+                </a>
+                <a href="{% url 'shap_explication' dossier.pk %}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:var(--bg-primary);color:var(--text-secondary);text-decoration:none;font-size:13px;transition:all 0.2s;"
+                    onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-secondary)'">
+                    📊 Explications SHAP
+                </a>
+                <a href="{% url 'chatbot' dossier.pk %}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:var(--bg-primary);color:var(--text-secondary);text-decoration:none;font-size:13px;transition:all 0.2s;"
+                    onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-secondary)'">
+                    💬 Chatbot LLM
+                </a>
+            </div>
+        </div>
+
+        <!-- Score résumé -->
+        {% if score %}
+        <div style="background:var(--accent-gradient);border-radius:14px;padding:20px;box-shadow:0 4px 16px rgba(184,115,51,0.25);">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(28,28,30,0.65);margin-bottom:8px;">Score de crédit</div>
+            <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:#1c1c1e;">{{ score.score|floatformat:1 }}</div>
+            <div style="font-size:12px;color:rgba(28,28,30,0.6);margin-top:4px;">Risque : {{ score.get_niveau_risque }}</div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

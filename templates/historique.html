@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Historique — CreditAI{% endblock %}
+{% block nav_historique %}active{% endblock %}
+
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
+    <div>
+        <h1 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--text-primary);">Historique des dossiers</h1>
+        <p style="font-size:0.88rem;color:var(--text-muted);margin-top:4px;">{{ dossiers.count }} dossier(s) au total</p>
+    </div>
+    <a href="{% url 'nouveau_dossier' %}" style="display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:10px;background:var(--accent-gradient);color:#1c1c1e;text-decoration:none;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;">
+        + Nouveau dossier
+    </a>
+</div>
+
+<!-- RECHERCHE -->
+<form method="GET" style="margin-bottom:1.5rem;">
+    <div style="display:flex;gap:12px;">
+        <div style="flex:1;display:flex;align-items:center;gap:10px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--text-muted)" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+            </svg>
+            <input type="text" name="q" value="{{ query }}" placeholder="Rechercher un client..."
+                style="background:none;border:none;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;width:100%;outline:none;">
+        </div>
+        <button type="submit" style="padding:10px 20px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;">
+            Rechercher
+        </button>
+    </div>
+</form>
+
+<!-- TABLE -->
+<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+    <table style="width:100%;border-collapse:collapse;">
+        <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+                <th style="padding:14px 20px;text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;">Client</th>
+                <th style="padding:14px 20px;text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;">Score</th>
+                <th style="padding:14px 20px;text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;">Risque</th>
+                <th style="padding:14px 20px;text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;">Prob. Défaut</th>
+                <th style="padding:14px 20px;text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;">Date</th>
+                <th style="padding:14px 20px;text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dossier in dossiers %}
+            <tr style="border-bottom:1px solid rgba(58,58,60,0.5);transition:background 0.2s;"
+                onmouseover="this.style.background='var(--bg-card-hover)'"
+                onmouseout="this.style.background='transparent'">
+
+                <td style="padding:14px 20px;">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:36px;height:36px;border-radius:8px;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:#1c1c1e;flex-shrink:0;">
+                            {{ dossier.client_nom|first|upper }}{{ dossier.client_prenom|first|upper }}
+                        </div>
+                        <div>
+                            <div style="font-size:14px;font-weight:600;color:var(--text-primary);">{{ dossier.client_nom }} {{ dossier.client_prenom }}</div>
+                            <div style="font-size:12px;color:var(--text-muted);">Âge : {{ dossier.age }} ans</div>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="padding:14px 20px;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--accent-copper);">
+                    {% if dossier.score %}{{ dossier.score.score|floatformat:0 }}{% else %}—{% endif %}
+                </td>
+
+                <td style="padding:14px 20px;">
+                    {% if dossier.score %}
+                    <span style="padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600;
+                        {% if dossier.score.get_niveau_risque == 'Faible' %}background:rgba(107,142,107,0.15);color:var(--gain);border:1px solid rgba(107,142,107,0.3);
+                        {% elif dossier.score.get_niveau_risque == 'Élevé' %}background:rgba(194,120,120,0.15);color:var(--loss);border:1px solid rgba(194,120,120,0.3);
+                        {% else %}background:rgba(184,115,51,0.15);color:var(--accent-copper);border:1px solid rgba(184,115,51,0.3);{% endif %}">
+                        {{ dossier.score.get_niveau_risque }}
+                    </span>
+                    {% else %}
+                    <span style="color:var(--text-muted);font-size:13px;">Non scoré</span>
+                    {% endif %}
+                </td>
+
+                <td style="padding:14px 20px;font-size:14px;color:var(--text-secondary);">
+                    {% if dossier.score %}{{ dossier.score.proba_defaut|floatformat:3 }}{% else %}—{% endif %}
+                </td>
+
+                <td style="padding:14px 20px;font-size:13px;color:var(--text-muted);">
+                    {{ dossier.created_at|date:"d/m/Y H:i" }}
+                </td>
+
+                <td style="padding:14px 20px;">
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+
+                        <!-- Détail — toujours visible -->
+                        <a href="{% url 'detail_dossier' dossier.pk %}"
+                            style="padding:5px 10px;border-radius:6px;background:rgba(184,115,51,0.15);color:var(--accent-copper);text-decoration:none;font-size:11px;font-weight:600;border:1px solid rgba(184,115,51,0.3);">
+                            Détail
+                        </a>
+
+                        
+                        <!-- SHAP -->
+                        <a href="{% url 'shap_explication' dossier.pk %}"
+                            style="padding:5px 10px;border-radius:6px;background:rgba(59,130,246,0.15);color:#3b82f6;text-decoration:none;font-size:11px;font-weight:600;border:1px solid rgba(59,130,246,0.3);">
+                            SHAP
+                        </a>
+                        <!-- Chatbot -->
+                        <a href="{% url 'chatbot' dossier.pk %}"
+                            style="padding:5px 10px;border-radius:6px;background:rgba(107,142,107,0.15);color:var(--gain);text-decoration:none;font-size:11px;font-weight:600;border:1px solid rgba(107,142,107,0.3);">
+                            Chat
+                        </a>
+                        <!-- PDF -->
+                        <a href="{% url 'rapport_pdf' dossier.pk %}"
+                            style="padding:5px 10px;border-radius:6px;background:rgba(99,102,241,0.15);color:#6366f1;text-decoration:none;font-size:11px;font-weight:600;border:1px solid rgba(99,102,241,0.3);">
+                            PDF
+                        </a>
+                        
+
+                        <!-- Supprimer — toujours visible -->
+                        <a href="{% url 'supprimer_dossier' dossier.pk %}"
+                            style="padding:5px 10px;border-radius:6px;background:rgba(194,120,120,0.15);color:var(--loss);text-decoration:none;font-size:11px;font-weight:600;border:1px solid rgba(194,120,120,0.3);">
+                            Supprimer
+                        </a>
+
+                    </div>
+                </td>
+
+            </tr>
+            {% endfor %}
+
+            {% if not dossiers %}
+            <tr>
+                <td colspan="6" style="text-align:center;padding:3rem;color:var(--text-muted);font-size:14px;">
+                    Aucun dossier trouvé
+                </td>
+            </tr>
+            {% endif %}
+
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

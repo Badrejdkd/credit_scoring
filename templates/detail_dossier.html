@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ dossier.client_nom }} {{ dossier.client_prenom }} — CreditAI{% endblock %}
+{% block nav_historique %}active{% endblock %}
+
+{% block content %}
+
+<!-- HEADER -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
+    <div style="display:flex;align-items:center;gap:16px;">
+        <div style="width:52px;height:52px;border-radius:12px;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:#1c1c1e;">
+            {{ dossier.client_nom|first|upper }}{{ dossier.client_prenom|first|upper }}
+        </div>
+        <div>
+            <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--text-primary);">
+                {{ dossier.client_nom }} {{ dossier.client_prenom }}
+            </h1>
+            <p style="font-size:0.85rem;color:var(--text-muted);">
+                Dossier #{{ dossier.pk }} · Créé le {{ dossier.created_at|date:"d/m/Y à H:i" }}
+            </p>
+        </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="{% url 'historique' %}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;font-size:13px;">
+            ← Retour
+        </a>
+        {% if score %}
+        <a href="{% url 'shap_explication' dossier.pk %}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#3b82f6;text-decoration:none;font-size:13px;font-weight:500;">
+            📊 SHAP
+        </a>
+        <a href="{% url 'chatbot' dossier.pk %}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;background:rgba(107,142,107,0.15);border:1px solid rgba(107,142,107,0.3);color:var(--gain);text-decoration:none;font-size:13px;font-weight:500;">
+            💬 Chatbot
+        </a>
+        <a href="{% url 'rapport_pdf' dossier.pk %}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;background:rgba(184,115,51,0.15);border:1px solid rgba(184,115,51,0.3);color:var(--accent-copper);text-decoration:none;font-size:13px;font-weight:500;">
+            📄 PDF
+        </a>
+        {% endif %}
+        <a href="{% url 'supprimer_dossier' dossier.pk %}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;background:rgba(194,120,120,0.15);border:1px solid rgba(194,120,120,0.3);color:var(--loss);text-decoration:none;font-size:13px;font-weight:500;">
+            🗑 Supprimer
+        </a>
+    </div>
+</div>
+
+<!-- SCORE CARDS -->
+{% if score %}
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:1.5rem;">
+
+    <div style="background:var(--accent-gradient);border-radius:14px;padding:22px;box-shadow:0 6px 20px rgba(184,115,51,0.3);position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-15px;right:-15px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.1);"></div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(28,28,30,0.65);margin-bottom:10px;">Score de Crédit</div>
+        <div style="font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;color:#1c1c1e;line-height:1;">{{ score.score|floatformat:1 }}</div>
+        <div style="font-size:12px;color:rgba(28,28,30,0.6);margin-top:6px;">sur 100 points</div>
+    </div>
+
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:22px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Probabilité de Défaut</div>
+        <div style="font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;line-height:1;
+            color:{% if score.proba_defaut < 0.2 %}var(--gain){% elif score.proba_defaut < 0.5 %}var(--accent-copper){% else %}var(--loss){% endif %};">
+            {{ score.proba_defaut|floatformat:3 }}
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">{{ score.proba_defaut|floatformat:1 }}% de risque</div>
+    </div>
+
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:22px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Niveau de Risque</div>
+        <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;line-height:1;margin-bottom:12px;
+            {% if score.get_niveau_risque == 'Faible' %}color:var(--gain);
+            {% elif score.get_niveau_risque == 'Élevé' %}color:var(--loss);
+            {% else %}color:var(--accent-copper);{% endif %}">
+            {{ score.get_niveau_risque }}
+        </div>
+        <span style="padding:5px 14px;border-radius:100px;font-size:12px;font-weight:600;
+            {% if score.get_niveau_risque == 'Faible' %}background:rgba(107,142,107,0.15);color:var(--gain);border:1px solid rgba(107,142,107,0.3);
+            {% elif score.get_niveau_risque == 'Élevé' %}background:rgba(194,120,120,0.15);color:var(--loss);border:1px solid rgba(194,120,120,0.3);
+            {% else %}background:rgba(184,115,51,0.15);color:var(--accent-copper);border:1px solid rgba(184,115,51,0.3);{% endif %}">
+            {{ score.get_niveau_risque }}
+        </span>
+    </div>
+
+</div>
+{% else %}
+<div style="background:rgba(184,115,51,0.1);border:1px solid rgba(184,115,51,0.3);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:12px;">
+    <span style="font-size:1.5rem;">⏳</span>
+    <div>
+        <div style="font-size:14px;font-weight:600;color:var(--accent-copper);">Dossier non scoré</div>
+        <div style="font-size:13px;color:var(--text-muted);">Aucun score de crédit disponible pour ce dossier.</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- DONNÉES + SHAP -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+
+    <!-- DONNÉES CLIENT -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:22px;">
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:16px;">
+            📋 Données du dossier
+        </div>
+        {% for label, value in dossier_data %}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(58,58,60,0.4);">
+            <span style="font-size:13px;color:var(--text-muted);">{{ label }}</span>
+            <span style="font-size:13px;font-weight:600;color:var(--text-primary);">{{ value }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- SHAP -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:22px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text-primary);">
+                🔍 Explications SHAP
+            </div>
+            {% if score %}
+            <a href="{% url 'shap_explication' dossier.pk %}" style="font-size:12px;color:var(--accent-copper);text-decoration:none;font-weight:500;">
+                Voir détail →
+            </a>
+            {% endif %}
+        </div>
+        {% if shap %}
+        <div style="display:flex;flex-direction:column;gap:12px;">
+            {% for expl in shap %}
+            <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                    <span style="font-size:12px;color:var(--text-secondary);">{{ expl.variable }}</span>
+                    <span style="font-size:12px;font-weight:700;
+                        color:{% if expl.valeur_shap > 0 %}var(--loss){% else %}var(--gain){% endif %};">
+                        {% if expl.valeur_shap > 0 %}+{% endif %}{{ expl.valeur_shap|floatformat:3 }}
+                    </span>
+                </div>
+                <div style="height:6px;border-radius:3px;background:var(--bg-primary);overflow:hidden;">
+                    <div style="height:100%;border-radius:3px;width:60%;
+                        background:{% if expl.valeur_shap > 0 %}var(--loss){% else %}var(--gain){% endif %};"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:13px;">
+            Aucune explication SHAP disponible
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- RECOMMANDATION -->
+{% if score %}
+<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:14px;">
+    <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">
+        💡 Recommandation
+    </div>
+    <div style="padding:16px;border-radius:10px;border-left:3px solid
+        {% if score.get_niveau_risque == 'Faible' %}var(--gain)
+        {% elif score.get_niveau_risque == 'Élevé' %}var(--loss)
+        {% else %}var(--accent-copper){% endif %};
+        background:var(--bg-primary);">
+        <div style="font-size:14px;color:var(--text-primary);line-height:1.7;">
+            {% if score.get_niveau_risque == 'Faible' %}
+            ✅ <strong>Crédit recommandé.</strong> Le profil de ce client présente un faible risque de défaut ({{ score.proba_defaut|floatformat:1 }}%). Les indicateurs financiers sont satisfaisants.
+            {% elif score.get_niveau_risque == 'Élevé' %}
+            ❌ <strong>Crédit déconseillé.</strong> Le profil présente un risque élevé de défaut ({{ score.proba_defaut|floatformat:1 }}%). Des garanties supplémentaires sont recommandées avant toute décision.
+            {% else %}
+            ⚠️ <strong>Examen approfondi recommandé.</strong> Le profil présente un risque modéré ({{ score.proba_defaut|floatformat:1 }}%). Une analyse complémentaire est conseillée avant de statuer.
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ACTIONS RAPIDES -->
+{% if score %}
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
+    <a href="{% url 'shap_explication' dossier.pk %}" style="display:flex;align-items:center;gap:14px;padding:18px;border-radius:14px;background:var(--bg-card);border:1px solid var(--border);text-decoration:none;transition:all 0.2s;"
+        onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">📊</div>
+        <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);">SHAP & Explication</div>
+            <div style="font-size:11px;color:var(--text-muted);">Facteurs d'influence</div>
+        </div>
+    </a>
+    <a href="{% url 'chatbot' dossier.pk %}" style="display:flex;align-items:center;gap:14px;padding:18px;border-radius:14px;background:var(--bg-card);border:1px solid var(--border);text-decoration:none;transition:all 0.2s;"
+        onmouseover="this.style.borderColor='var(--gain)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(107,142,107,0.15);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">💬</div>
+        <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);">Chatbot LLM</div>
+            <div style="font-size:11px;color:var(--text-muted);">Poser une question</div>
+        </div>
+    </a>
+    <a href="{% url 'rapport_pdf' dossier.pk %}" style="display:flex;align-items:center;gap:14px;padding:18px;border-radius:14px;background:var(--bg-card);border:1px solid var(--border);text-decoration:none;transition:all 0.2s;"
+        onmouseover="this.style.borderColor='var(--accent-copper)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(184,115,51,0.15);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">📄</div>
+        <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);">Rapport PDF</div>
+            <div style="font-size:11px;color:var(--text-muted);">Générer & télécharger</div>
+        </div>
+    </a>
+</div>
+{% endif %}
+
+<!-- LOGS CHATBOT -->
+{% if logs %}
+<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:22px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text-primary);">
+            💬 Historique Chatbot LLM
+        </div>
+        <a href="{% url 'chatbot' dossier.pk %}" style="font-size:12px;color:var(--accent-copper);text-decoration:none;font-weight:500;">
+            Ouvrir le chat →
+        </a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+        {% for log in logs %}
+        <div style="background:var(--bg-primary);border-radius:10px;padding:14px;">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">
+                {{ log.created_at|date:"d/m/Y H:i" }}
+            </div>
+            <div style="font-size:13px;color:var(--accent-copper);font-weight:600;margin-bottom:6px;">
+                Q : {{ log.question }}
+            </div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">
+                R : {{ log.reponse|truncatewords:30 }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
