@@ -1,0 +1,21 @@
+{
+  "feature_names": [
+    "RevolvingUtilizationOfUnsecuredLines",
+    "age",
+    "NumberOfTime30-59DaysPastDueNotWorse",
+    "DebtRatio",
+    "MonthlyIncome",
+    "NumberOfOpenCreditLinesAndLoans",
+    "NumberOfTimes90DaysLate",
+    "NumberRealEstateLoansOrLines",
+    "NumberOfTime60-89DaysPastDueNotWorse",
+    "NumberOfDependents"
+  ],
+  "n_features": 10,
+  "accuracy": 0.8058,
+  "auc_roc": 0.8645,
+  "best_threshold": 0.7745,
+  "n_train": 117732,
+  "n_test": 29433,
+  "scale_pos_weight": 14.04
+}

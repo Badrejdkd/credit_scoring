@@ -18,9 +18,10 @@ warnings.filterwarnings('ignore')
 # ════════════════════════════════════════
 #  1. CHARGEMENT DES DONNÉES
 # ════════════════════════════════════════
+path = os.path.join("ml", "cs-training.csv")
 print("📂 Chargement des données...")
 
-df = pd.read_csv('cs-training.csv', index_col=0)
+df = pd.read_csv(path, index_col=0)
 print(f"   Shape initial : {df.shape}")
 print(f"   Colonnes : {list(df.columns)}")
 
@@ -82,7 +83,7 @@ feature_names = [
     'NumberOfDependents',                   # nb_dependents
 ]
 
-X = df[feature_names]
+X = df[feature_names]  # Toutes les colonnes sauf la target
 y = df['SeriousDlqin2yrs']
 
 print(f"\n✅ Features sélectionnées : {len(feature_names)}")
@@ -119,7 +120,7 @@ model = XGBClassifier(
     max_depth=5,
     learning_rate=0.05,
     subsample=0.8,
-    colsample_bytree=0.8,
+    colsample_bytree=0.6,
     scale_pos_weight=scale_pos_weight,
     random_state=42,
     eval_metric='auc',
@@ -134,6 +135,7 @@ model.fit(
 )
 
 print("   ✅ Entraînement terminé !")
+
 
 
 # ════════════════════════════════════════

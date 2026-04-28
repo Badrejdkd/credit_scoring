@@ -519,7 +519,6 @@ body {
 }
 
 .form-input {
-    width: 100%;
     padding: 14px 18px;
     background-color: var(--bg-primary);
     border: 1px solid var(--border);
