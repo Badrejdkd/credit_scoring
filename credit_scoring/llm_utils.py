@@ -2,7 +2,7 @@ import requests
 import json
 
 
-OLLAMA_MODEL = 'llama2'
+OLLAMA_MODEL = 'gemma2:2b'
 
 
 def construire_contexte(dossier):
@@ -97,7 +97,7 @@ def poser_question(dossier, question):
 
     try:
         response = requests.post(
-            'http://localhost:11434/api/generate',
+            'http://localhost:11500/api/generate',
             json=payload,
             timeout=120,
         )
@@ -134,7 +134,7 @@ def poser_question(dossier, question):
 def verifier_ollama():
     try:
         response = requests.get(
-            'http://localhost:11434/api/tags',
+            'http://localhost:11500/api/tags',
             timeout=5
         )
         response.raise_for_status()

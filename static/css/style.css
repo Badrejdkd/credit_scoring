@@ -519,13 +519,18 @@ body {
 }
 
 .form-input {
-    padding: 14px 18px;
+    width: 100%;
+    padding: 18px 20px; /* plus grand */
+    height: 60px;       /* hauteur fixe */
+
     background-color: var(--bg-primary);
     border: 1px solid var(--border);
     border-radius: 10px;
+
     font-size: 16px;
     font-family: inherit;
     color: var(--text-primary);
+
     transition: all 0.2s ease;
 }
 

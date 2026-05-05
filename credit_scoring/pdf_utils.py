@@ -93,7 +93,7 @@ def generer_rapport(dossier):
     story = []
 
     # En-tête
-    story.append(Paragraph("CreditAI — Rapport de Scoring de Crédit", style_title))
+    story.append(Paragraph("SALF — Rapport de Scoring de Crédit", style_title))
     story.append(Paragraph(f"EMSI Casablanca · Généré le {timezone.now().strftime('%d/%m/%Y à %H:%M')}", style_subtitle))
     story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#b87333'), spaceAfter=16))
 

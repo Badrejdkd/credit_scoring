@@ -4,53 +4,421 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion — CreditAI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>Connexion — Salf</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --copper-light: #d4935a;
+            --copper-mid:   #c07840;
+            --copper-dark:  #8b4f1a;
+            --dark-bg:      #0e0e0e;
+            --dark-card:    #161616;
+            --dark-border:  #2a2a2a;
+            --text-white:   #f5f0eb;
+            --text-muted:   #7a7a7a;
+            --text-soft:    #b0a89e;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            display: flex;
+            background: var(--dark-bg);
+            overflow: hidden;
+        }
+
+        /* ── PANNEAU GAUCHE ── */
+        .left-panel {
+            width: 48%;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #c88040 0%, #a05e28 40%, #7a3d10 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 3rem 3.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* texture subtile */
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        /* grand cercle décoratif */
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -120px;
+            right: -120px;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.08);
+            pointer-events: none;
+        }
+
+        .left-top {
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-wrap img {
+            height: 72px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));
+        }
+
+        .left-middle {
+            position: relative;
+            z-index: 2;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .left-tagline {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.3;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        .left-desc {
+            font-size: 0.88rem;
+            color: rgba(255,255,255,0.65);
+            line-height: 1.7;
+            max-width: 340px;
+            font-weight: 300;
+        }
+
+        .left-bottom {
+            position: relative;
+            z-index: 2;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .feature-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+
+        .left-footer-line {
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.12);
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.35);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* ── PANNEAU DROIT ── */
+        .right-panel {
+            flex: 1;
+            min-height: 100vh;
+            background: var(--dark-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem;
+            position: relative;
+        }
+
+        /* ligne décorative verticale de séparation */
+        .right-panel::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 15%; bottom: 15%;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, var(--dark-border), transparent);
+        }
+
+        .form-box {
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .form-head {
+            margin-bottom: 2.5rem;
+        }
+
+        .form-head-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--copper-light);
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+
+        .form-head h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-white);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.6rem;
+        }
+
+        .form-head p {
+            font-size: 0.83rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        /* alertes */
+        .alert {
+            background: rgba(180, 60, 60, 0.12);
+            border: 1px solid rgba(180, 60, 60, 0.3);
+            color: #e08080;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* champs */
+        .field {
+            margin-bottom: 1.4rem;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-soft);
+            font-weight: 500;
+            margin-bottom: 0.55rem;
+        }
+
+        .field input {
+            width: 100%;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 6px;
+            padding: 0.85rem 1rem;
+            color: var(--text-white);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 300;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .field input:focus {
+            border-color: var(--copper-mid);
+            box-shadow: 0 0 0 3px rgba(192, 120, 64, 0.12);
+        }
+
+        .field input::placeholder {
+            color: #3a3a3a;
+        }
+
+        /* rangée remember + forgot */
+        .extras-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .remember {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            cursor: pointer;
+        }
+
+        .remember input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            accent-color: var(--copper-mid);
+            cursor: pointer;
+        }
+
+        .remember span {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .forgot {
+            font-size: 0.78rem;
+            color: var(--copper-light);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .forgot:hover { color: #fff; }
+
+        /* bouton */
+        .btn-signin {
+            width: 100%;
+            background: linear-gradient(135deg, var(--copper-light), var(--copper-dark));
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.95rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+            box-shadow: 0 4px 20px rgba(192, 120, 64, 0.25);
+        }
+
+        .btn-signin:hover {
+            opacity: 0.88;
+            transform: translateY(-1px);
+        }
+
+        /* séparateur */
+        .sep {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0 1.5rem;
+        }
+
+        .sep-line {
+            flex: 1;
+            height: 1px;
+            background: var(--dark-border);
+        }
+
+        .sep-text {
+            font-size: 0.68rem;
+            color: #3a3a3a;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* pied de page */
+        .form-footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #2e2e2e;
+            letter-spacing: 0.04em;
+        }
+
+        /* animation d'entrée */
+        .form-box {
+            animation: slideUp 0.5s ease both;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .left-tagline {
+            animation: fadeIn 0.7s 0.1s ease both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+    </style>
 </head>
-<body class="auth-page">
+<body>
 
-    <div class="auth-branding">
-        <div class="branding-content">
+    <!-- ── PANNEAU GAUCHE ── -->
+    <div class="left-panel">
 
-            <div class="branding-logo-img">
-                <img src="{% static 'img/salfjaune.png' %}"
-                     alt="Salaf"
-                     style="height: 80px; width: auto; object-fit: contain;">
-            </div>
-
-            <div class="branding-subtitle">
-                Votre portail sécurisé d'accès à la plateforme intelligente de scoring de risque de crédit
-            </div>
-
-            <div class="branding-features">
-                <div class="branding-feature">
-                    <div class="feature-icon">🔒</div>
-                    Authentification sécurisée par identifiant bancaire
-                </div>
-                <div class="branding-feature">
-                    <div class="feature-icon">📊</div>
-                    Scoring de risque en temps réel avec XGBoost
-                </div>
-                <div class="branding-feature">
-                    <div class="feature-icon">🤖</div>
-                    Assistant LLM pour l'analyse intelligente des dossiers
-                </div>
-                <div class="branding-feature">
-                    <div class="feature-icon">📄</div>
-                    Génération automatique de rapports PDF explicatifs
-                </div>
+        <div class="left-top">
+            <div class="logo-wrap">
+                <img src="{% static 'img/salfjaune.png' %}" alt="Salf">
             </div>
         </div>
+
+        <div class="left-middle">
+            <div class="left-tagline">
+                Évaluer le risque.<br>Décider avec clarté.
+            </div>
+            <p class="left-desc">
+                Une plateforme de scoring conçue pour les conseillers bancaires 
+                qui veulent comprendre leurs décisions, pas seulement les prendre.
+            </p>
+        </div>
+
+        <div class="left-bottom">
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-dot"></span>
+                    <span class="feature-text">Scoring automatique XGBoost en temps réel</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-dot"></span>
+                    <span class="feature-text">Explication des décisions variable par variable (SHAP)</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-dot"></span>
+                    <span class="feature-text">Assistant conversationnel local — aucune donnée externe</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-dot"></span>
+                    <span class="feature-text">Rapport PDF généré automatiquement à chaque dossier</span>
+                </li>
+            </ul>
+
+            <div class="left-footer-line">
+                Réservé aux conseillers accrédités · EMSI Casablanca 2025
+            </div>
+        </div>
+
     </div>
 
-    <div class="auth-form-container">
-        <div class="auth-form-wrapper">
+    <!-- ── PANNEAU DROIT ── -->
+    <div class="right-panel">
+        <div class="form-box">
 
-            <div class="form-header">
-                <h1>Bienvenue</h1>
-                <p>Veuillez saisir vos identifiants pour accéder à votre espace conseiller</p>
+            <div class="form-head">
+                <div class="form-head-label">Espace conseiller</div>
+                <h1>Connexion</h1>
+                <p>Saisissez vos identifiants pour accéder à votre tableau de bord.</p>
             </div>
 
             {% if messages %}
@@ -62,49 +430,80 @@
             <form method="POST">
                 {% csrf_token %}
 
-                <div class="form-group">
-                    <label class="form-label">Identifiant</label>
-                    <div class="form-input-wrapper">
-                       
-                        <input class="form-input" type="text" name="username" placeholder="Votre nom d'utilisateur" required autofocus>
-                    </div>
+                <div class="field">
+                    <label for="username">Nom d'utilisateur</label>
+                    <input type="text" id="username" name="username"
+                           placeholder="votre_identifiant" required autofocus>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Mot de passe</label>
-                    <div class="form-input-wrapper">
-                        <input class="form-input" type="password" name="password" placeholder="Votre mot de passe" required>
-                    </div>
+                <div class="field">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password"
+                           placeholder="••••••••••" required>
                 </div>
 
-                <div class="form-row">
-                    <label class="checkbox-wrapper">
-                        <div class="checkbox" id="rememberCheck" onclick="this.classList.toggle('checked')">
-                            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="3">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
-                            </svg>
-                        </div>
-                        <span class="checkbox-label">Se souvenir de moi</span>
+                <div class="extras-row">
+                    <label class="remember">
+                        <input type="checkbox" name="remember">
+                        <span>Se souvenir de moi</span>
                     </label>
-                    <a href="#" class="forgot-link">Mot de passe oublié ?</a>
+                    <a href="#" class="forgot" onclick="toggleForgot(event)">Mot de passe oublié ?</a>
                 </div>
 
-                <button type="submit" class="submit-btn">Se connecter</button>
+                <button type="submit" class="btn-signin">Se connecter</button>
             </form>
 
-            <div class="divider">
-                <div class="divider-line"></div>
-                <span class="divider-text">accès réservé aux conseillers autorisés</span>
-                <div class="divider-line"></div>
+            <!-- Message mot de passe oublié -->
+            <div id="forgot-box" style="
+                display: none;
+                background: #161616;
+                border: 1px solid #2a2a2a;
+                border-left: 3px solid var(--copper-mid);
+                border-radius: 6px;
+                padding: 1rem 1.1rem;
+                margin-top: 1.2rem;">
+                <p style="font-size:0.7rem;color:#555;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.45rem;">
+                    Accès réservé
+                </p>
+                <p style="font-size:0.82rem;color:#8a8078;line-height:1.65;font-weight:300;">
+                    Pour réinitialiser votre mot de passe, contactez l'administrateur de la plateforme :
+                </p>
+                <a href="mailto:elmoudenbadre30@gmail.com"
+                   style="display:inline-block;margin-top:0.55rem;font-size:0.85rem;
+                          color:var(--copper-light);font-weight:500;
+                          text-decoration:none;transition:color 0.2s;"
+                   onmouseover="this.style.color='#ffffff'"
+                   onmouseout="this.style.color='var(--copper-light)'">
+                    elmoudenbadre30@gmail.com
+                </a>
             </div>
 
-            <div class="copyright" style="margin-top:2rem;font-size:13px;color:var(--text-muted);text-align:center;">
-                © 2026 SALF — EMSI Casablanca · Tous droits réservés
+            <div class="sep">
+                <div class="sep-line"></div>
+                <span class="sep-text">accès sécurisé</span>
+                <div class="sep-line"></div>
+            </div>
+
+            <div class="form-footer">
+                © 2026 Salf — EMSI Casablanca · Tous droits réservés
             </div>
 
         </div>
     </div>
-    
+
+<script>
+    function toggleForgot(e) {
+        e.preventDefault();
+        const box = document.getElementById('forgot-box');
+        const isHidden = box.style.display === 'none';
+        box.style.display = isHidden ? 'block' : 'none';
+        if (isHidden) {
+            box.style.animation = 'none';
+            box.offsetHeight;
+            box.style.animation = 'slideUp 0.25s ease both';
+        }
+    }
+</script>
 
 </body>
 </html>

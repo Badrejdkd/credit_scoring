@@ -154,4 +154,47 @@
     </div>
 
 </form>
+<!-- LOADING OVERLAY -->
+    <div id="loading-overlay" style="
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(8,13,26,0.85);
+        backdrop-filter:blur(6px);
+        z-index:9999;
+        align-items:center;
+        justify-content:center;
+        flex-direction:column;
+        gap:20px;
+    ">
+        <div style="
+            width:56px;height:56px;
+            border:3px solid var(--border);
+            border-top-color:var(--accent-copper);
+            border-radius:50%;
+            animation:spin 0.8s linear infinite;
+        "></div>
+        <div style="text-align:center;">
+            <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:6px;">
+                Analyse en cours...
+            </div>
+            <div style="font-size:0.85rem;color:var(--text-muted);">
+                Calcul du score XGBoost et des valeurs SHAP
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', function() {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.display = 'flex';
+        });
+    </script>
+
 {% endblock %}

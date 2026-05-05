@@ -159,10 +159,63 @@
 
 {% block extra_js %}
 <script>
-// Auto-scroll vers le bas
+// Auto-scroll
 const chatMessages = document.getElementById('chat-messages');
-if (chatMessages) {
+if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+
+// Loading à la place du logo robot
+document.querySelector('form').addEventListener('submit', function(e) {
+    const input = document.getElementById('question-input');
+    const question = input.value.trim();
+    if (!question) return;
+
+    // Ajoute le message utilisateur
+    const userMsg = document.createElement('div');
+    userMsg.style.cssText = 'display:flex;gap:12px;align-items:flex-start;flex-direction:row-reverse;';
+    userMsg.innerHTML = `
+        <div style="width:34px;height:34px;border-radius:8px;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:#1c1c1e;flex-shrink:0;">
+            {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+        </div>
+        <div style="background:var(--accent-gradient);border-radius:12px;border-top-right-radius:2px;padding:14px;max-width:80%;">
+            <div style="font-size:13px;color:#1c1c1e;line-height:1.6;">${question}</div>
+        </div>
+    `;
+    chatMessages.appendChild(userMsg);
+
+    // Ajoute le loading à la place du 🤖
+    const loadingMsg = document.createElement('div');
+    loadingMsg.id = 'loading-msg';
+    loadingMsg.style.cssText = 'display:flex;gap:12px;align-items:flex-start;';
+    loadingMsg.innerHTML = `
+        <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#6366f1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <div style="
+                width:16px;height:16px;
+                border:2px solid rgba(255,255,255,0.3);
+                border-top-color:#fff;
+                border-radius:50%;
+                animation:spin 0.7s linear infinite;
+            "></div>
+        </div>
+        <div style="background:var(--bg-primary);border-radius:12px;border-top-left-radius:2px;padding:14px;">
+            <div style="display:flex;gap:5px;align-items:center;height:20px;">
+                <span style="width:7px;height:7px;background:var(--text-muted);border-radius:50%;animation:bounce 1.2s infinite 0s;display:inline-block;"></span>
+                <span style="width:7px;height:7px;background:var(--text-muted);border-radius:50%;animation:bounce 1.2s infinite 0.2s;display:inline-block;"></span>
+                <span style="width:7px;height:7px;background:var(--text-muted);border-radius:50%;animation:bounce 1.2s infinite 0.4s;display:inline-block;"></span>
+            </div>
+        </div>
+    `;
+    chatMessages.appendChild(loadingMsg);
     chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+});
 </script>
+
+<style>
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+@keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+}
+</style>
 {% endblock %}
