@@ -145,12 +145,17 @@
         <a href="{% url 'dashboard' %}" style="display:inline-flex;align-items:center;padding:13px 24px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;font-size:14px;font-weight:500;">
             Annuler
         </a>
-        <button type="submit" style="display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:10px;background:var(--accent-gradient);color:#1c1c1e;border:none;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(184,115,51,0.3);">
-            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Créer & Scorer
-        </button>
+        <button type="submit"
+    style="display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:10px;background:#059669;color:#fff;border:none;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(5,150,105,0.35);transition:transform 0.15s,box-shadow 0.15s,background 0.15s;"
+    onmouseover="this.style.background='#10b981';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(5,150,105,0.5)'"
+    onmouseout="this.style.background='#059669';this.style.transform='translateY(0)';this.style.boxShadow='0 4px 16px rgba(5,150,105,0.35)'"
+    onmousedown="this.style.transform='translateY(0)'"
+    onmouseup="this.style.transform='translateY(-2px)'">
+    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    Créer & Scorer
+</button>
     </div>
 
 </form>

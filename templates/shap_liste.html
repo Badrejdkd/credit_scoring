@@ -18,9 +18,10 @@
 {% if dossiers %}
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
     {% for dossier in dossiers %}
-    <a href="{% url 'shap_explication' dossier.pk %}" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;text-decoration:none;display:block;transition:all 0.2s;"
-        onmouseover="this.style.borderColor='var(--accent-copper)';this.style.transform='translateY(-2px)'"
-        onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+    <a href="{% url 'shap_explication' dossier.pk %}"
+       style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;text-decoration:none;display:block;transition:all 0.2s;color:var(--text-primary);"
+       onmouseover="this.style.borderColor='var(--accent-copper)';this.style.transform='translateY(-2px)'"
+       onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
 
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
             <div style="width:40px;height:40px;border-radius:10px;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#1c1c1e;flex-shrink:0;">
